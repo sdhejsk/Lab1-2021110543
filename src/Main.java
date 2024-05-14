@@ -36,8 +36,11 @@ public class Main {
         //展示生成的有向图。可以通过遍历节点和边的方式实现这一步骤，将每个节点和它的邻居一起输出。
         showDirectedGraph(graph);
         //实现queryBridgeWords函数，查询两个单词的桥接词
-        String word1 = "explore";
-        String word2 = "new";
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter word1: ");
+        String word1 = scanner.next().toLowerCase();
+        System.out.print("Enter word2: ");
+        String word2 = scanner.next().toLowerCase();
         String result = queryBridgeWords(word1, word2);
         System.out.println(result);
         //实现generateNewText函数，根据bridge word生成新文本
@@ -52,6 +55,9 @@ public class Main {
     }
 
     public static String queryBridgeWords(String word1, String word2) {
+        if (!graph.nameToIndex.containsKey(word1) && !graph.nameToIndex.containsKey(word2)) {
+            return "No \"" + word1 + "\" and \"" + word2 + "\" in the graph!";
+        }
         if (!graph.nameToIndex.containsKey(word1)) {
             return "No \"" + word1 + "\" in the graph!";
         }
