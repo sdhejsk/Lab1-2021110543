@@ -2,7 +2,11 @@ import java.util.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class Main {
 
@@ -79,8 +83,94 @@ public class Main {
         }
     }
     //显示图
-    public static void showDirectedGraph(GraphDemo graph){
+    // 绘制有向图
+    public static void showDirectedGraph(GraphDemo graph) {
+        // 创建 JFrame 窗口
+        JFrame frame = new JFrame("Graph Visualization");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
 
+        // 获取窗口的中心点坐标
+        int centerX = frame.getWidth() / 2;
+        int centerY = frame.getHeight() / 2;
+
+        // 在 JFrame 中绘制图形
+        frame.getContentPane().add(new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                // Draw nodes
+                List<String> nodes = graph.getNode();
+                int node_num = nodes.size();
+                int r = node_num * 10;
+                Map<String, Integer> map = graph.getnameToIndex();
+                for (String node : nodes) {
+                    double x = centerX + -r * Math.sin(((double) map.get(node) / node_num) * 2 * Math.PI);  // Get node's x coordinate
+                    double y = centerY + r * Math.cos(((double) map.get(node) / node_num) * 2 * Math.PI); // Get node's y coordinate
+                    String label = node; // Get node's label
+
+                    // Draw node as a circle
+                    g.setColor(Color.PINK);
+                    g.fillOval((int) x, (int) y, 20, 20); // Assuming node is represented by a circle with diameter 20
+
+                    // Draw label
+                    g.setColor(Color.BLACK);
+                    g.drawString(label, (int) x + 25, (int) y); // Draw label next to the node
+                }
+
+                // Draw edges
+                for (String node : nodes) {
+                    Iterable<String> neighbors = graph.adj(node);
+                    List<String> neighborList = StreamSupport.stream(neighbors.spliterator(), false)
+                            .collect(Collectors.toList());
+                    String start = node;
+                    for (String end : neighborList) {
+                        double startx = centerX + -r * Math.sin(((double) map.get(start) / node_num) * 2 * Math.PI);
+                        double starty = centerY + r * Math.cos(((double) map.get(start) / node_num) * 2 * Math.PI);
+                        double endx = centerX + -r * Math.sin(((double) map.get(end) / node_num) * 2 * Math.PI);
+                        double endy = centerY + r * Math.cos(((double) map.get(end) / node_num) * 2 * Math.PI);
+                        g.setColor(Color.RED);
+                        //g.drawLine((int) startx + 10, (int) starty + 10, (int) endx + 10, (int) endy + 10); // Assuming nodes are represented by circles with diameter 20
+                        drawShortenedLine(g, (int) startx+10, (int) starty+10, (int) endx+10, (int) endy+10);
+
+                        int midpointX = (int)( startx +  endx) / 2;
+                        int midpointY = (int)( starty +  endy) / 2;
+                        g.drawString(Integer.toString(graph.getEdgeWeight(start,end)), midpointX, midpointY);
+                    }
+                }
+            }
+            void drawArrow(Graphics g, int x1, int y1, int x2, int y2) {
+                g.setColor(Color.BLACK);
+                // Calculate angle of line
+                double angle = Math.atan2(y2 - y1, x2 - x1);
+
+                // Draw arrow head parts
+                int len = 6; // length of the arrow head
+                double arrAngle1 = angle + Math.PI / 6; // angle of one side of the arrow head
+                double arrAngle2 = angle - Math.PI / 6; // angle of the other side of the arrow head
+
+                g.drawLine(x2, y2, x2 - (int) (len * Math.cos(arrAngle1)), y2 - (int) (len * Math.sin(arrAngle1)));
+                g.drawLine(x2, y2, x2 - (int) (len * Math.cos(arrAngle2)), y2 - (int) (len * Math.sin(arrAngle2)));
+            }
+            void drawShortenedLine(Graphics g, int x1, int y1, int x2, int y2) {
+                // Calculate angle of line
+                double angle = Math.atan2(y2 - y1, x2 - x1);
+
+                // Calculate shortened end point
+                int shortLen = 10; // length to shorten
+                int shortX = x2 - (int) (shortLen * Math.cos(angle));
+                int shortY = y2 - (int) (shortLen * Math.sin(angle));
+
+                // Draw line
+                g.drawLine(x1, y1, shortX, shortY);
+                //Draw arrow
+                drawArrow(g,x1,y1,shortX,shortY);
+            }
+        });
+
+        // 显示 JFrame
+        frame.setVisible(true);
     }
 
     public static List<String> getBridgeWords(String word1, String word2) {

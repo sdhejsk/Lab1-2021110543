@@ -74,6 +74,12 @@ public class GraphDemo {
             addEdge(words[i],words[i+1]);
         }
     }
+    public List<String> getNode(){
+        return indexToName;
+    }
+    public Map<String, Integer> getnameToIndex(){
+        return nameToIndex;
+    }
 
     public static void main(String[] args) {
         GraphDemo graph = new GraphDemo(5);
