@@ -81,6 +81,8 @@ public class GraphDemo {
         return nameToIndex;
     }
 
+    public List<List<Integer>> getAdj(){return adj;}
+
     public static void main(String[] args) {
         GraphDemo graph = new GraphDemo(5);
         graph.addNode("A");
