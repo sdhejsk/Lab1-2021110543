@@ -33,14 +33,22 @@ public class Main {
         //从文本文件读取数据，进行处理（忽略非字母字符，标点符号和大小写，等等）
         //并在图形结构中存储处理后的数据。每个单词可以表示为图的节点，每个单词之间的关系可以表示为边。
         //请注意，这可能需要实现一个输入/输出(IO)函数，读入文本文件，返回清理和格式化后的字符串数组。
-        String content = readFile("E:\\软件工程\\LAB1_\\lab01-software\\shuru.txt");
+        String content = readFile("shuru.txt");
 
         graph = new GraphDemo(100);
         graph.create_graph(content);
         int choice = 0;
+        Scanner scanner = new Scanner(System.in);
         while (choice != 1){
+            System.out.print("############# Welcome to our program #############\n");
+            System.out.print("1——Exiting program.\n");
+            System.out.print("2——Show directed graphs.\n");
+            System.out.print("3——Searching for bridging words.\n");
+            System.out.print("4——Generate new text.\n");
+            System.out.print("5——Calculate the shortest path.\n");
+            System.out.print("6——Implement random walk.\n");
+            System.out.print("###################################################\n");
             System.out.print("Please Enter Your Choice: ");
-            Scanner scanner = new Scanner(System.in);
             choice = scanner.nextInt();
             switch (choice){
                 case 1:
@@ -118,8 +126,6 @@ public class Main {
                             List<String> apath = Arrays.asList(patharray);
                             allpathlist.add(apath);
                         }
-                        int picnum = 1;
-                        String last_end = new String();
                         //展示所有路径
                         for(List<String> a_path : allpathlist){
                             int length = 0;
@@ -132,37 +138,12 @@ public class Main {
                             fr.setSize(800, 600);
                             //展示路径
                             showDirectedGraph(graph,a_path,length,fr);
-
-                            /* 保存图片
-                            if(last_end.equals(a_path.get(a_path.size()-1)))picnum +=1;
-                            else picnum = 1;
-                            String savefp = words[0] + "_to_" + a_path.get(a_path.size()-1)+ picnum + ".png";
-                            last_end = a_path.get(a_path.size()-1);
-
-                            // 保存图形到文件
-                            try {
-                                // 创建 BufferedImage 实例
-                                BufferedImage image = new BufferedImage(fr.getWidth() + 20, fr.getHeight() + 20, BufferedImage.TYPE_INT_ARGB);
-                                Graphics2D g2d = image.createGraphics();
-                                // 绘制图形到 BufferedImage
-                                g2d.setColor(Color.WHITE);
-                                g2d.fillRect(0, 0, image.getWidth(), image.getHeight());
-                                fr.paint(g2d);
-
-                                // 保存 BufferedImage 到文件
-                                ImageIO.write(image, "png", new File(savefp));
-                                System.out.println("Graph saved as " + savefp);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            */
                         }
                     }
                     break;
                 case 6:
                     //实现randomWalk，随机游走
                     String random_path = randomWalk();
-                    System.out.println(random_path);
                     //保存文件
                     writefile(random_path,"output.txt");
                     break;
@@ -267,6 +248,7 @@ public class Main {
             e.printStackTrace();
         }
     }
+
     public static List<String> getBridgeWords(String word1, String word2) {
         List<String> bridgeWords = new ArrayList<>();
         word1 = word1.toLowerCase();
@@ -385,9 +367,6 @@ public class Main {
              int len, List<List<String>> result, List<String> path, int[] shortest, GraphDemo graph){
         if(len > shortest[0]) return;
         if(from == to){
-            //System.out.println("path: "+ path);
-            //System.out.println("length: "+ len);
-            //System.out.println("shortest: "+ shortest[0]);
             if(len < shortest[0]){
                 result.clear();
                 shortest[0] = len;
@@ -402,14 +381,15 @@ public class Main {
             path.remove(path.size() - 1);
         }
     }
+
     //随机游走
-    public static String randomWalk(){
+    public static String randomWalk() {
         List<List<Integer>> linjie = graph.getAdj();
         List<String> nodes = graph.getNode();
         Random random = new Random();
-        List<String> have_edges = new ArrayList<String>();
+        List<String> have_edges = new ArrayList<>();
         int lastNodeIndex = random.nextInt(nodes.size());
-        System.out.print(nodes.get(lastNodeIndex)+" ");
+        System.out.print(nodes.get(lastNodeIndex) + " ");
 
         boolean not_chongfu = true;
         StringBuilder path = new StringBuilder();
@@ -418,21 +398,23 @@ public class Main {
         Object lock = new Object();
 
         // 创建并启动等待用户输入的线程
-        Thread userInputThread = new Thread(new UserInputListener());
+        UserInputListener userInputListener = new UserInputListener();
+        Thread userInputThread = new Thread(userInputListener);
         userInputThread.start();
+
         // 主循环
         boolean exitLoop = false;
 
-        while(linjie.get(lastNodeIndex).size()!=0 && not_chongfu && !exitLoop){
-
+        while (!linjie.get(lastNodeIndex).isEmpty() && not_chongfu && !exitLoop) {
             int nextNodeIndex = linjie.get(lastNodeIndex).get(random.nextInt(linjie.get(lastNodeIndex).size()));
-            System.out.print(nodes.get(nextNodeIndex)+" ");
+            System.out.print(nodes.get(nextNodeIndex) + " ");
 
             path.append(" ").append(nodes.get(nextNodeIndex));
-            if(have_edges.contains(lastNodeIndex+","+nextNodeIndex)){
+            if (have_edges.contains(lastNodeIndex + "," + nextNodeIndex)) {
                 not_chongfu = false;
+            } else {
+                have_edges.add(lastNodeIndex + "," + nextNodeIndex);
             }
-            else have_edges.add(lastNodeIndex+","+nextNodeIndex);
             lastNodeIndex = nextNodeIndex;
 
             synchronized (lock) {
@@ -443,31 +425,44 @@ public class Main {
                     break;
                 }
             }
+
             // 检查用户输入线程是否还在运行
-            if (!userInputThread.isAlive()) {
+            if (!userInputThread.isAlive() || userInputListener.isInterrupted()) {
                 exitLoop = true;
             }
         }
-        if (userInputThread.isAlive()) {
+
+        if (userInputListener.isInterrupted()) {
+            System.out.println("\nUser input detected. Exiting random walk.");
+        } else if (userInputThread.isAlive()) {
             userInputThread.interrupt();
         }
+
         System.out.println();
         return path.toString();
     }
+
     // 等待用户输入的线程类
     static class UserInputListener implements Runnable {
         private Scanner scan = new Scanner(System.in);
+        private volatile boolean interrupted = false; // 标志变量
+
         @Override
         public void run() {
             while (!Thread.currentThread().isInterrupted()) {
                 if (scan.hasNextLine()) {
                     String input = scan.nextLine();
-                    // 用户输入后退出循环
-                    break;
+                    interrupted = true; // 设置标志变量
+                    break; // 用户输入后退出循环
                 }
             }
         }
+
+        public boolean isInterrupted() {
+            return interrupted;
+        }
     }
+
     //写文件
     public static void writefile(String content,String filePath){
         try (FileWriter writer = new FileWriter(filePath)) {

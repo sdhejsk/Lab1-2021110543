@@ -15,10 +15,6 @@ public class GraphDemo {
         }
     }
 
-    public int getNameToIndexSize() {
-        return nameToIndex.size();
-    }
-
     public void addNode(String name) {
         if (!nameToIndex.containsKey(name)) {
             int index = nameToIndex.size();
