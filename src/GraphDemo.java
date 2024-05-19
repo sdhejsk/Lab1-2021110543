@@ -66,7 +66,7 @@ public class GraphDemo {
         for (String word : words) {
             addNode(word);
         }
-        for(int i =0;i<words.length-1;i++){
+        for(int i =0; i<words.length-1; i++){
             addEdge(words[i],words[i+1]);
         }
     }

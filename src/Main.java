@@ -156,37 +156,41 @@ public class Main {
     }
     //显示图
     // 绘制有向图
-    public static void showDirectedGraph(GraphDemo graph, List<String> path,int length, JFrame frame) {
+    public static void showDirectedGraph(GraphDemo graph, List<String> path, int length, JFrame frame) {
+        // 创建一个滚动面板
+        JScrollPane scrollPane = new JScrollPane();
+        frame.getContentPane().add(scrollPane);
 
-        // 获取窗口的中心点坐标
-        int centerX = frame.getWidth() / 2;
-        int centerY = frame.getHeight() / 2;
-
-        // 在 JFrame 中绘制图形
-        frame.getContentPane().add(new JPanel() {
+        // 创建一个面板用于绘制图形
+        JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
+
+                // 获取窗口的中心点坐标
+                int centerX = getWidth() / 2;
+                int centerY = getHeight() / 2;
 
                 // Draw nodes
                 List<String> nodes = graph.getNode();
                 int node_num = nodes.size();
                 int r = node_num * 10;
                 Map<String, Integer> map = graph.getnameToIndex();
-                if(length!=0)g.drawString("path length: "+length, centerX - 20, centerY - 150);
+                if (length != 0) g.drawString("path length: " + length, centerX - 20, centerY - 150);
+
                 for (String node : nodes) {
-                    double x = centerX + -r * Math.sin(((double) map.get(node) / node_num) * 2 * Math.PI);  // Get node's x coordinate
-                    double y = centerY + r * Math.cos(((double) map.get(node) / node_num) * 2 * Math.PI); // Get node's y coordinate
-                    String label = node; // Get node's label
+                    double x = centerX - r * Math.sin(((double) map.get(node) / node_num) * 2 * Math.PI);
+                    double y = centerY + r * Math.cos(((double) map.get(node) / node_num) * 2 * Math.PI);
+                    String label = node;
 
                     // Draw node as a circle
-                    if(path.contains(node))g.setColor(Color.GREEN);
+                    if (path.contains(node)) g.setColor(Color.GREEN);
                     else g.setColor(Color.PINK);
-                    g.fillOval((int) x, (int) y, 20, 20); // Assuming node is represented by a circle with diameter 20
+                    g.fillOval((int) x, (int) y, 20, 20);
 
                     // Draw label
                     g.setColor(Color.BLACK);
-                    g.drawString(label, (int) x + 25, (int) y); // Draw label next to the node
+                    g.drawString(label, (int) x + 25, (int) y);
                 }
 
                 // Draw edges
@@ -196,20 +200,22 @@ public class Main {
                             .collect(Collectors.toList());
                     String start = node;
                     for (String end : neighborList) {
-                        double startx = centerX + -r * Math.sin(((double) map.get(start) / node_num) * 2 * Math.PI);
+                        double startx = centerX - r * Math.sin(((double) map.get(start) / node_num) * 2 * Math.PI);
                         double starty = centerY + r * Math.cos(((double) map.get(start) / node_num) * 2 * Math.PI);
-                        double endx = centerX + -r * Math.sin(((double) map.get(end) / node_num) * 2 * Math.PI);
+                        double endx = centerX - r * Math.sin(((double) map.get(end) / node_num) * 2 * Math.PI);
                         double endy = centerY + r * Math.cos(((double) map.get(end) / node_num) * 2 * Math.PI);
-                        if(path.contains(start)&&path.contains(end)&&(path.indexOf(end)-path.indexOf(start)==1))g.setColor(Color.GREEN);
+                        if (path.contains(start) && path.contains(end) && (path.indexOf(end) - path.indexOf(start) == 1))
+                            g.setColor(Color.GREEN);
                         else g.setColor(Color.RED);
-                        drawShortenedLine(g, (int) startx+10, (int) starty+10, (int) endx+10, (int) endy+10);
+                        drawShortenedLine(g, (int) startx + 10, (int) starty + 10, (int) endx + 10, (int) endy + 10);
 
-                        int midpointX = (int)( startx +  endx + 20)/2;
-                        int midpointY = (int)( starty +  endy + 20)/2;
-                        g.drawString(Integer.toString(graph.getEdgeWeight(start,end)), midpointX, midpointY);
+                        int midpointX = (int) (startx + endx + 20) / 2;
+                        int midpointY = (int) (starty + endy + 20) / 2;
+                        g.drawString(Integer.toString(graph.getEdgeWeight(start, end)), midpointX, midpointY);
                     }
                 }
             }
+
             void drawArrow(Graphics g, int x1, int y1, int x2, int y2) {
                 g.setColor(Color.BLACK);
                 // Calculate angle of line
@@ -223,6 +229,7 @@ public class Main {
                 g.drawLine(x2, y2, x2 - (int) (len * Math.cos(arrAngle1)), y2 - (int) (len * Math.sin(arrAngle1)));
                 g.drawLine(x2, y2, x2 - (int) (len * Math.cos(arrAngle2)), y2 - (int) (len * Math.sin(arrAngle2)));
             }
+
             void drawShortenedLine(Graphics g, int x1, int y1, int x2, int y2) {
                 // Calculate angle of line
                 double angle = Math.atan2(y2 - y1, x2 - x1);
@@ -234,19 +241,18 @@ public class Main {
 
                 // Draw line
                 g.drawLine(x1, y1, shortX, shortY);
-                //Draw arrow
-                drawArrow(g,x1,y1,shortX,shortY);
+                // Draw arrow
+                drawArrow(g, x1, y1, shortX, shortY);
             }
-        });
+        };
+
+        // 设置滚动面板内容
+        scrollPane.setViewportView(panel);
+        // 设置面板的首选大小（根据需要调整）
+        panel.setPreferredSize(new Dimension(2000, 2000));
+
         // 显示 JFrame
         frame.setVisible(true);
-
-        // 等待 JFrame 完全显示
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     public static List<String> getBridgeWords(String word1, String word2) {
