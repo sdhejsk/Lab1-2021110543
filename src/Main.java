@@ -372,14 +372,20 @@ public class Main {
                 result.clear();
                 shortest[0] = len;
             }
+            //System.out.println("adding");
             result.add(new ArrayList<>(path)); // Add path to result if it has the shortest length
             return;
         }
+        List<String> neilist = new ArrayList<String>();
         for(int next : linjie.get(from)){
-            if(path.contains(nodes.get(next))) continue;
-            path.add(nodes.get(next));
-            dfs(next, to,  linjie, nodes,len + graph.getEdgeWeight(nodes.get(from), nodes.get(next)), result, path, shortest, graph);
-            path.remove(path.size() - 1);
+            if(!neilist.contains(nodes.get(next))){
+                neilist.add(nodes.get(next));
+                //System.out.println(nodes.get(from)+"的邻居："+nodes.get(next));
+                if(path.contains(nodes.get(next))) continue;
+                path.add(nodes.get(next));
+                dfs(next, to,  linjie, nodes,len + graph.getEdgeWeight(nodes.get(from), nodes.get(next)), result, path, shortest, graph);
+                path.remove(path.size() - 1);
+            }
         }
     }
 
