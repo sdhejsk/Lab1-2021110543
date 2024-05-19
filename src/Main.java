@@ -251,11 +251,11 @@ public class Main {
     }
 
     public static List<String> getBridgeWords(String word1, String word2) {
-        List<String> bridgeWords = new ArrayList<>();
+        Set<String> bridgeWords = new HashSet<>();
         word1 = word1.toLowerCase();
         word2 = word2.toLowerCase();
         if (!graph.nameToIndex.containsKey(word1) || !graph.nameToIndex.containsKey(word2)) {
-            return bridgeWords;
+            return new ArrayList<>(bridgeWords);
         }
 
         int word1Index = graph.nameToIndex.get(word1);
@@ -269,7 +269,7 @@ public class Main {
             }
         }
 
-        return bridgeWords;
+        return new ArrayList<>(bridgeWords);
     }
 
     public static String queryBridgeWords(String word1, String word2) {
