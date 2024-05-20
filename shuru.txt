@@ -1,0 +1,15 @@
+The cat sat on the mat.
+The@#$ cat saw a rat.
+The<> rat ran.
+The cat ran after the rat.
+The ]]rat hid.
+The cat waited.
+The rat came out.
+The cat pounced()##.
+The rat ran away.
+The cat sat on the %^mat.
+The mat was warm.
+The cat was happy.
+The rat was scared.
+The cat slept.
+The rat watched.--
