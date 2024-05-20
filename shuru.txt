@@ -12,4 +12,4 @@ The mat was warm.
 The cat was happy.
 The rat was scared.
 The cat slept.
-The rat watched.
+The rat watched...
